@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone</title>
+    <!--
+        Fonte carregada apenas no HTML (removida do @import no CSS)
+        para evitar requisição dupla e melhorar performance.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+    <!--
+        NAVBAR:
+        - <header> semântico com role implícito de banner
+        - <nav> com aria-label para leitores de tela
+        - Logo dentro de <a> direto (h1 removido: não é um título de página)
+        - Classes BEM: .navbar, .navbar__logo, .navbar__nav, .navbar__links, .navbar__profile
+    -->
+    <header class="navbar" id="navbar">
+        <a href="/" class="navbar__logo" aria-label="Netflix — Página Inicial">NETFLIX</a>
+
+        <nav class="navbar__nav" aria-label="Menu principal">
+            <ul class="navbar__links">
+                <li><a href="#">Início</a></li>
+                <li><a href="#">Séries</a></li>
+                <li><a href="#">Filmes</a></li>
+                <li><a href="#">Bombando</a></li>
+                <li><a href="#">Minha Lista</a></li>
+            </ul>
+        </nav>
+
+        <div class="navbar__profile">
+            <img
+                src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
+                alt="Avatar do perfil do usuário"
+                width="35"
+                height="35"
+            >
+        </div>
+    </header>
+
+    <!--
+        HERO / FEATURED:
+        - <section> semântico com aria-label descritivo
+        - IDs mantidos para compatibilidade com JS
+        - Dois overlays de gradiente preservados (vertical + horizontal)
+        - Classes BEM: .featured, .featured__overlay-v, .featured__overlay-h, etc.
+        - SVG do botão "Assistir" com aria-hidden para não ser lido por leitores de tela
+        - Texto dos botões em <span> para facilitar estilização independente
+    -->
+    <section class="featured" id="featured" aria-label="Destaque principal">
+        <div class="featured__overlay-v">
+            <div class="featured__overlay-h">
+
+                <h1 class="featured__title" id="featured-title" aria-live="polite">
+                    Carregando...
+                </h1>
+
+                <div class="featured__meta" aria-live="polite">
+                    <span class="featured__score" id="featured-score">-- pontos</span>
+                    <span class="featured__year"  id="featured-year">--</span>
+                </div>
+
+                <p class="featured__description" id="featured-desc" aria-live="polite">
+                    Carregando descrição...
+                </p>
+
+                <div class="featured__buttons">
+                    <!--
+                        Botão "Assistir": usa <a> com role="button" se href for "#",
+                        ou trocar para <button> se não navegar.
+                        SVG aria-hidden=true evita leitura duplicada.
+                    -->
+                    <a href="#" class="btn btn--watch" aria-label="Assistir ao título em destaque">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span>Assistir</span>
+                    </a>
+                    <a href="#" class="btn btn--list" aria-label="Adicionar título à minha lista">
+                        <span>+ Minha Lista</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!--
+        LISTAS DE FILMES:
+        - <main> é o conteúdo principal da página
+        - Conteúdo gerado dinamicamente pelo JS
+        - Sem inline style (bug corrigido: havia margin-top: 0px inline)
+    -->
+    <main class="lists" id="lists" aria-label="Categorias de filmes e séries">
+        <!-- Conteúdo inserido dinamicamente pelo script.js -->
+    </main>
+
+    <!--
+        FOOTER:
+        - Classe .footer adicionada para evitar estilizar a tag global
+    -->
+    <footer class="footer">
+        <p>Feito para fins educacionais.</p>
+        <p>Direitos de imagem para Netflix | Dados fornecidos pelo <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">The Movie DB</a>.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
