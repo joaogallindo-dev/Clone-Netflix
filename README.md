@@ -7,6 +7,7 @@ O projeto é um clone da Netflix desenvolvido para fins de estudo, com foco na i
 
 📄 Funcionalidades
 --- 
+- Reponsividade
 - Navegação intuitiva  
 - Integração com TMDb API
 
