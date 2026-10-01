@@ -10,8 +10,8 @@
  *   2. Reset e base
  *   3. Botões
  *   4. Navbar / header
- *   5. Hero (destaque)
- *   6. Listas: fileiras, cards, Top 10, setas, skeleton, erro
+ *   5. Hero (destaque), loader do hero e banner promocional
+ *   6. Listas: fileiras, cards, selo "N", Top 10, setas, skeleton, erro
  *   7. Footer
  *   8. Responsividade (todos os breakpoints, do menor para o maior)
  *   9. Acessibilidade de movimento
@@ -60,8 +60,9 @@
     --header-h: calc(env(safe-area-inset-top, 0px) + 96px);
 
     /* --- Cards --- */
-    --radius:   5px;
-    --card-gap: 8px;
+    --radius:      5px;
+    --radius-card: 8px;      /* cantos dos pôsteres (mais arredondados, como em apps de streaming) */
+    --card-gap:    8px;
 
     /*
      * Largura dos cards, calculada para que sempre apareça um card
@@ -74,6 +75,15 @@
     --cards: 2.5;
     --gaps:  2;
     --card-w-base: calc((100vw - var(--gutter) - var(--card-gap) * var(--gaps)) / var(--cards));
+
+    /*
+     * Largura dos pôsteres da fileira Top 10 (maiores que as comuns, pois
+     * cada item inclui o número). Cada item ocupa 1.24x a largura do pôster
+     * (pôster + espaço para o número) e há 0.14x extra à esquerda do primeiro.
+     *   --top-cards : quantos itens aparecem na tela (redefinido na seção 8)
+     */
+    --top-cards:  2.3;
+    --top-card-w: calc((100vw - var(--gutter)) / (var(--top-cards) * 1.24 + 0.14));
 
     /* --- Transições --- */
     --transition-fast:   0.2s ease;
@@ -264,7 +274,9 @@ button:focus-visible {
 
 
 /* ============================================================================
-   5. HERO (DESTAQUE)
+   5. HERO (DESTAQUE), LOADER DO HERO E BANNER PROMOCIONAL
+
+   5.1 Hero
    A imagem de fundo é aplicada por JS na variável --hero-image e revelada
    com fade (::before) quando termina de carregar.
    ============================================================================ */
@@ -356,6 +368,109 @@ button:focus-visible {
     margin-bottom: 60px;
 }
 
+/* --- 5.2 Loader do hero ---
+   Ilustração de TV exibida enquanto o destaque carrega.
+   O JS adiciona .is-ready ao hero (sucesso ou erro) e ela desaparece. */
+.featured__loader {
+    position: absolute;
+    top: calc(var(--header-h) + 40px);
+    left: 50%;
+    width: 96px;
+    height: 96px;
+    margin-left: -48px;
+    opacity: 0.9;
+    animation: float 2.4s ease-in-out infinite;
+    transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+.featured.is-ready .featured__loader {
+    opacity: 0;
+    visibility: hidden;
+    animation: none;
+}
+@keyframes float {
+    50% { transform: translateY(-10px); }
+}
+
+/* --- 5.3 Banner promocional ---
+   Ícone (pipoca) ao lado de uma caixa escura com texto e botão.
+   Sobe sobre o hero no lugar onde antes ficava o título da 1ª fileira. */
+.promo {
+    position: relative;
+    z-index: var(--z-cards);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: -100px var(--gutter) 0;
+}
+
+.promo__icon {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    transition: transform var(--transition-smooth);
+}
+/* Microinteração: a pipoca "dá uma sacudida" quando o mouse passa no banner */
+.promo:hover .promo__icon {
+    animation: wiggle 0.6s ease;
+}
+@keyframes wiggle {
+    25% { transform: rotate(-10deg) scale(1.08); }
+    60% { transform: rotate(8deg) scale(1.08); }
+}
+
+.promo__box {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;                 /* no celular o botão desce para baixo do texto */
+    align-items: center;
+    gap: var(--space-sm) var(--space-md);
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    background: linear-gradient(100deg, #1a1a38 0%, #1d1a37 55%, #241a36 100%);
+    box-shadow: 0 0 60px rgba(60, 70, 170, 0.18);   /* brilho azulado suave ao redor */
+}
+
+.promo__text {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+.promo__title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.promo__subtitle {
+    margin-top: 2px;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: var(--color-text-light);
+}
+
+.promo__btn {
+    flex: none;
+    min-height: 40px;
+    padding: 9px 18px;
+    border: 0;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--color-white);
+    font-family: var(--font-base);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+.promo__btn:hover  { background: rgba(255, 255, 255, 0.28); }
+.promo__btn:active { transform: scale(0.97); }
+
+/* O banner agora ocupa a "área de sobreposição" do hero, então a lista
+   começa logo abaixo dele (em vez de subir sobre o hero). */
+.promo + .lists {
+    margin-top: var(--space-lg);
+}
+
 
 /* ============================================================================
    6. LISTAS (FILEIRAS DE FILMES)
@@ -380,6 +495,20 @@ button:focus-visible {
 }
 .lists__error .btn {
     flex: none;
+}
+.lists__error-icon {
+    width: 96px;
+    height: 96px;
+    transform-origin: 50% 80%;
+    animation: sway 3.2s ease-in-out infinite;     /* telescópio balançando devagar */
+}
+.lists__error-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-white);
+}
+@keyframes sway {
+    50% { transform: rotate(-8deg); }
 }
 
 /* --- 6.2 Fileira --- */
@@ -425,23 +554,28 @@ button:focus-visible {
     width: max-content;
 }
 
-/* --- 6.3 Setas de navegação (só aparecem onde há mouse) --- */
+/* --- 6.3 Setas de navegação (só aparecem onde há mouse) ---
+   Faixa fina e arredondada, centralizada na altura do pôster (sem cobrir a fileira toda). */
 .movie-row__arrow {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 2;
-    width: clamp(36px, 4vw, 56px);
+    top: 50%;
+    z-index: 4;                                    /* acima dos pôsteres e dos números do Top 10 */
+    width: clamp(24px, 2.2vw, 40px);
+    height: calc(var(--card-w) * 0.72);
     border: 0;
+    border-radius: 6px;
     color: var(--color-white);
-    background: rgba(20, 20, 20, 0.7);
-    font-size: 2.25rem;
+    background: rgba(20, 20, 20, 0.6);
+    font-size: 1.75rem;
+    font-weight: 300;
+    line-height: 1;
     cursor: pointer;
     opacity: 0;
+    transform: translateY(-50%);
     transition: opacity var(--transition-base), background-color var(--transition-fast);
 }
-.movie-row__arrow--prev { left: 0; }
-.movie-row__arrow--next { right: 0; }
+.movie-row__arrow--prev { left: 6px; }
+.movie-row__arrow--next { right: 6px; }
 .movie-row__arrow:hover {
     background: rgba(20, 20, 20, 0.9);
 }
@@ -450,10 +584,10 @@ button:focus-visible {
     opacity: 1;
 }
 .movie-row__arrow:disabled {
-    visibility: hidden;                       /* some no início/fim da fileira */
+    visibility: hidden;                            /* some no início/fim da fileira */
 }
 @media (hover: none) {
-    .movie-row__arrow { display: none; }      /* touch rola com o dedo */
+    .movie-row__arrow { display: none; }           /* touch rola com o dedo */
 }
 
 /* --- 6.4 Card --- */
@@ -468,7 +602,7 @@ button:focus-visible {
     width: 100%;
     padding: 0;
     border: 0;
-    border-radius: var(--radius);
+    border-radius: var(--radius-card);
     overflow: hidden;
     background: #222;                          /* cor exibida enquanto a imagem carrega */
     color: inherit;
@@ -487,6 +621,23 @@ button:focus-visible {
     height: auto;
     aspect-ratio: 2 / 3;
     object-fit: cover;
+    pointer-events: none;
+}
+
+/*
+ * Selo "N" no canto superior do pôster (conteúdo original).
+ * É só uma letra estilizada com a cor da marca (--color-brand), sem logotipo.
+ */
+.movie-card__badge {
+    position: absolute;
+    top: 7px;
+    left: 8px;
+    color: var(--color-brand);
+    font-size: 1.15rem;
+    font-weight: 900;
+    line-height: 1;
+    -webkit-text-stroke: 1px var(--color-white);   /* contorno branco: legível sobre qualquer pôster */
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
     pointer-events: none;
 }
 
@@ -542,6 +693,7 @@ button:focus-visible {
     flex: none;
     width: var(--card-w);
     aspect-ratio: 2 / 3;
+    border-radius: var(--radius-card);
 }
 .movie-row--skeleton .movie-row__scroll {
     gap: var(--card-gap);
@@ -550,30 +702,52 @@ button:focus-visible {
     to { background-position: -200% 0; }
 }
 
-/* --- 6.6 Top 10: número grande ao lado do pôster --- */
-/* Pôsteres um pouco menores para o número caber sem "roubar" espaço demais */
+/* --- 6.6 Top 10: número grande sobre o canto inferior esquerdo do pôster ---
+   Estrutura (igual à referência): o número invade o pôster por baixo-esquerda,
+   com contorno branco e miolo escuro. Cada item = pôster + espaço de ~24% para o número. */
 .movie-row--top10 {
-    --card-w: calc(var(--card-w-base) * 0.78);
+    --card-w: var(--top-card-w);
+}
+
+/* Espaço à esquerda do 1º pôster para o número "pendurado" não ser cortado */
+.movie-row--top10 .movie-row__scroll {
+    padding-left: calc(var(--gutter) + var(--card-w) * 0.14);
+}
+.movie-row--top10 .movie-row__list {
+    gap: calc(var(--card-w) * 0.24);
+}
+
+/* Pôsteres do Top 10 um pouco mais "em pé" (5:7) */
+.movie-row--top10 .movie-card__btn img {
+    aspect-ratio: 5 / 7;
 }
 
 .movie-card--ranked {
-    display: flex;
-    align-items: flex-end;
-    width: auto;                               /* largura = número + pôster */
-}
-.movie-card--ranked .movie-card__btn {
-    width: var(--card-w);
+    position: relative;                        /* âncora do número */
 }
 
 .movie-card__rank {
-    margin-right: -0.06em;
-    font-size: calc(var(--card-w) * 1);
+    position: absolute;
+    left: calc(var(--card-w) * -0.14);         /* sai um pouco para fora do pôster */
+    bottom: calc(var(--card-w) * 0.04);
+    z-index: 3;                                /* acima do pôster */
+    font-size: calc(var(--card-w) * 0.56);
     font-weight: 900;
-    line-height: 0.75;
-    letter-spacing: -0.08em;
-    color: var(--color-bg);
-    -webkit-text-stroke: 2px #6d6d6e;          /* contorno do número vazado */
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: #000;                               /* miolo escuro */
+    -webkit-text-stroke: 3px var(--color-white); /* contorno branco */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    pointer-events: none;                      /* o clique passa para o pôster */
     user-select: none;
+}
+
+/* O título do hover fica no TOPO do pôster, para não brigar com o número embaixo */
+.movie-row--top10 .movie-card__title {
+    inset: 0 0 auto;
+    padding: 10px 10px 28px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+    transform: translateY(-6px);
 }
 
 
@@ -623,14 +797,19 @@ button:focus-visible {
     .navbar__links a { font-size: 0.8rem; }
     .btn { font-size: 0.875rem; padding-inline: 8px; }
     .featured__title { font-size: 1.6rem; }
+    .promo__icon     { width: 44px; height: 44px; }
+    .promo__box      { padding: 12px; }
+    .promo__btn      { width: 100%; }
 }
 
 /* --- 8.2 Celulares grandes (≥ 400px): 3 pôsteres e meio por tela --- */
 @media (min-width: 400px) {
     :root {
-        --cards: 3.5;
-        --gaps:  3;
+        --cards:     3.5;
+        --gaps:      3;
+        --top-cards: 2.6;
     }
+    .promo__icon { width: 56px; height: 56px; }
     .navbar__links { gap: 26px; }
     .navbar__links a { font-size: 0.9rem; }
 }
@@ -638,9 +817,14 @@ button:focus-visible {
 /* --- 8.3 Celulares deitados / tablets pequenos (≥ 600px) --- */
 @media (min-width: 600px) {
     :root {
-        --cards: 4.5;
-        --gaps:  4;
+        --cards:     4.5;
+        --gaps:      4;
+        --top-cards: 3.2;
     }
+    /* Banner: texto à esquerda, botão à direita (como na referência) */
+    .promo__icon  { width: 64px; height: 64px; }
+    .promo__box   { flex-wrap: nowrap; padding: 16px 20px; }
+    .promo__title { font-size: 1.05rem; }
     .btn {
         flex: initial;
         min-width: 130px;
@@ -656,11 +840,16 @@ button:focus-visible {
 /* --- 8.4 Tablets (≥ 768px): header em uma linha, hero com degradê lateral --- */
 @media (min-width: 768px) {
     :root {
-        --cards:    5.5;
-        --gaps:     5;
-        --card-gap: 10px;
-        --header-h: calc(env(safe-area-inset-top, 0px) + 72px);
+        --cards:     5.5;
+        --gaps:      5;
+        --top-cards: 3.6;
+        --card-gap:  10px;
+        --header-h:  calc(env(safe-area-inset-top, 0px) + 72px);
     }
+    .promo__icon  { width: 72px; height: 72px; }
+    .promo__box   { padding: 16px 28px; }
+    .promo__title { font-size: 1.15rem; }
+    .promo__subtitle { font-size: 0.95rem; }
 
     /* Header em UMA linha: logo | menu | perfil */
     .navbar {
@@ -707,9 +896,13 @@ button:focus-visible {
 /* --- 8.5 Notebooks pequenos / tablets deitados (≥ 1024px) --- */
 @media (min-width: 1024px) {
     :root {
-        --cards: 6.5;
-        --gaps:  6;
+        --cards:     6.5;
+        --gaps:      6;
+        --top-cards: 4.6;
     }
+    .promo__icon  { width: 76px; height: 76px; }
+    .promo__box   { padding: 18px 32px; }
+    .promo__title { font-size: 1.2rem; }
     .featured__title       { max-width: 60%; }
     .featured__description { max-width: 40%; min-width: 300px; }
 }
@@ -717,9 +910,10 @@ button:focus-visible {
 /* --- 8.6 Notebooks e desktops (≥ 1280px) --- */
 @media (min-width: 1280px) {
     :root {
-        --cards:    7.5;
-        --gaps:     7;
-        --card-gap: 12px;
+        --cards:     7.5;
+        --gaps:      7;
+        --top-cards: 5.6;
+        --card-gap:  12px;
         --header-h: calc(env(safe-area-inset-top, 0px) + 78px);
     }
     .navbar { height: calc(env(safe-area-inset-top, 0px) + 78px); }
@@ -729,8 +923,9 @@ button:focus-visible {
 /* --- 8.7 Desktops grandes (≥ 1600px) --- */
 @media (min-width: 1600px) {
     :root {
-        --cards: 8.5;
-        --gaps:  8;
+        --cards:     8.5;
+        --gaps:      8;
+        --top-cards: 6.6;
     }
     .featured__description { max-width: 34%; }
 }
@@ -739,8 +934,9 @@ button:focus-visible {
 @media (min-width: 1920px) {
     html { font-size: 112.5%; }
     :root {
-        --cards: 9.5;
-        --gaps:  9;
+        --cards:     9.5;
+        --gaps:      9;
+        --top-cards: 7.6;
     }
 }
 
@@ -748,8 +944,9 @@ button:focus-visible {
 @media (min-width: 2560px) {
     html { font-size: 125%; }
     :root {
-        --cards: 10.5;
-        --gaps:  10;
+        --cards:     10.5;
+        --gaps:      10;
+        --top-cards: 9.6;
     }
 }
 
@@ -777,6 +974,10 @@ button:focus-visible {
     .featured__buttons     { margin-bottom: 0; }
     .btn                   { min-height: 40px; padding-block: 6px; }
     .lists                 { margin-top: -50px; }
+    .promo                 { margin-top: -50px; }
+    .promo__icon           { width: 44px; height: 44px; }
+    .promo__box            { padding: 10px 16px; }
+    .featured__loader      { display: none; }
 }
 
 /* --- 8.11 Telas de toque (celular/tablet) ---
@@ -795,6 +996,11 @@ button:focus-visible {
     .movie-card__btn:active {
         transform: scale(0.96);
     }
+}
+
+/* --- 8.12 Telas pequenas: contorno do número do Top 10 mais fino --- */
+@media (max-width: 599px) {
+    .movie-card__rank { -webkit-text-stroke-width: 2px; }
 }
 
 
