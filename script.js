@@ -95,10 +95,11 @@
        Para adicionar ou remover uma fileira, edite apenas esta lista.
          variant: 'top10' -> fileira numerada
          limit:   máximo de itens exibidos
+         badge:   true -> mostra o selo "N" no canto do pôster (conteúdo original)
        ======================================================================== */
     const CATEGORIES = [
         { slug: 'top10',     title: 'Top 10 hoje',            path: '/trending/all/day', variant: 'top10', limit: 10 },
-        { slug: 'originals', title: 'Originais da Netflix',   path: '/discover/tv',      params: { with_network: 213 } },
+        { slug: 'originals', title: 'Originais da Netflix',   path: '/discover/tv',      params: { with_network: 213 }, badge: true },
         { slug: 'trending',  title: 'Recomendados para Você', path: '/trending/all/week' },
         { slug: 'toprated',  title: 'Em Alta',                path: '/movie/top_rated' },
         { slug: 'action',    title: 'Top Ação',               path: '/discover/movie',   params: { with_genres: 28 } },
@@ -160,8 +161,12 @@
        5. HERO (DESTAQUE)
        ======================================================================== */
 
+    /** Marca o hero como pronto: esconde a ilustração de carregamento (ver CSS 5.2). */
+    const markHeroReady = () => $('featured').classList.add('is-ready');
+
     /** Mostra mensagem de erro no hero quando a API falha. */
     function setHeroError() {
+        markHeroReady();
         $('featured-title').textContent = 'Conteúdo indisponível';
         $('featured-desc').textContent  = 'Não foi possível carregar o destaque. Tente novamente mais tarde.';
         $('featured-score').textContent = '';
@@ -194,6 +199,7 @@
         const details = await tmdb('/tv/' + chosen.id);
         if (!details) return setHeroError();
 
+        markHeroReady();
         $('featured-title').textContent = details.name || 'Título indisponível';
 
         $('featured-score').textContent = details.vote_average
@@ -243,11 +249,12 @@
 
     /**
      * Cria um card (pôster). Se rank > 0, adiciona o número do Top 10.
-     * @param {Object} item  Filme/série da API
-     * @param {number} rank  Posição no Top 10 (0 = card comum)
+     * @param {Object} item    Filme/série da API
+     * @param {number} rank    Posição no Top 10 (0 = card comum)
+     * @param {boolean} badge  true = mostra o selo "N" no canto superior do pôster
      * @returns {HTMLLIElement}
      */
-    function buildCard(item, rank) {
+    function buildCard(item, rank, badge) {
         const name   = item.title || item.name || 'Sem título';
         const poster = item.poster_path;
 
@@ -273,6 +280,7 @@
             'aria-label': rank ? rank + '. ' + name : name,
         },
             img,
+            badge ? el('span', { class: 'movie-card__badge', 'aria-hidden': 'true', text: 'N' }) : null,
             el('span', { class: 'movie-card__title', 'aria-hidden': 'true', text: name })
         );
 
@@ -381,7 +389,7 @@
         const ranked    = category.variant === 'top10';
         const headingId = 'row-' + category.slug;
 
-        const cards = category.results.map((item, i) => buildCard(item, ranked ? i + 1 : 0));
+        const cards = category.results.map((item, i) => buildCard(item, ranked ? i + 1 : 0, Boolean(category.badge)));
         const list  = el(ranked ? 'ol' : 'ul', { class: 'movie-row__list' }, ...cards);
 
         const scroller = el('div', { class: 'movie-row__scroll' }, list);
@@ -421,7 +429,8 @@
 
     /**
      * Renderiza as fileiras. Se nenhuma categoria tiver dados,
-     * mostra uma mensagem de erro com botão "Tentar novamente".
+     * mostra uma mensagem de erro (com ilustração de telescópio)
+     * e o botão "Tentar novamente".
      * @param {HTMLElement} container
      * @param {Array} categories
      * @param {Function} onRetry  Chamada ao clicar em "Tentar novamente"
@@ -437,6 +446,9 @@
 
             container.replaceChildren(
                 el('div', { class: 'lists__error', role: 'alert' },
+                    // ilustração decorativa (alt vazio: o texto abaixo já explica o erro)
+                    el('img', { class: 'lists__error-icon', src: 'assets/telescope.svg', alt: '', width: 96, height: 96 }),
+                    el('p', { class: 'lists__error-title', text: 'Procuramos por toda parte, mas não achamos nada.' }),
                     el('p', { text: 'Não foi possível carregar os títulos. Verifique sua conexão e tente novamente.' }),
                     retry
                 )
