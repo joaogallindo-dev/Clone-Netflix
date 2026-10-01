@@ -19,13 +19,13 @@
 
     <!-- Um único arquivo de estilos -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
 
     <!-- ===== NAVBAR ===== -->
     <header class="navbar" id="navbar">
-        <a href="/" class="navbar__logo" aria-label="Netflix — Página Inicial">NETFLIX</a>
+        <a href="index.html" class="navbar__logo" aria-label="Netflix — Página Inicial">NETFLIX</a>
 
         <nav class="navbar__nav" aria-label="Menu principal">
             <ul class="navbar__links">
@@ -44,6 +44,7 @@
 
     <!-- ===== HERO (preenchido pelo JavaScript) ===== -->
     <section class="featured" id="featured" aria-label="Destaque principal">
+
         <div class="featured__overlay-v">
             <div class="featured__overlay-h">
                 <h1 class="featured__title" id="featured-title" aria-live="polite">Carregando...</h1>
@@ -67,6 +68,18 @@
             </div>
         </div>
     </section>
+
+    <!-- ===== BANNER PROMOCIONAL (conteúdo de exemplo) ===== -->
+    <aside class="promo" aria-label="Promoção">
+        <img class="promo__icon" src="popcorn.svg" alt="" width="76" height="76" aria-hidden="true">
+        <div class="promo__box">
+            <div class="promo__text">
+                <p class="promo__title">A Netflix que você adora por apenas R$ 20,90.</p>
+                <p class="promo__subtitle">Aproveite nossa opção mais acessível, o plano com anúncios.</p>
+            </div>
+            <button type="button" class="promo__btn">Saiba mais</button>
+        </div>
+    </aside>
 
     <!-- ===== CATEGORIAS (preenchidas pelo JavaScript) ===== -->
     <main class="lists" id="lists" aria-label="Categorias de filmes e séries"></main>
